@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محفظة Web3Auth بسيطة</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #walletInfo {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: left;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>محفظة Web3</h1>
+    <p>اضغط على الزر للاتصال بمحفظتك.</p>
+    <button id="connectBtn">الاتصال بالمحفظة</button>
+    <div id="walletInfo" style="display: none;">
+        <h3>بيانات المحفظة:</h3>
+        <p><strong>العنوان:</strong> <span id="walletAddress"></span></p>
+        <p><strong>المزود:</strong> <span id="walletProvider"></span></p>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@web3auth/modal@7.0.4/dist/web3auth.umd.min.js"></script>
+<script>
+    const clientId = "BByrzraXv22Wnt-R5-jSWJFpkBP9F4hfMt65NXfXKSxKBd0VZ2XYZJoMXtEA6EoBrht-d917-fCDGQej3IVpq9A"; 
+
+    // تهيئة Web3Auth
+    const web3auth = new Web3Auth.Web3Auth({
+      clientId: clientId,
+      chainConfig: {
+        chainNamespace: "eip155",
+        chainId: "0x1", 
+        rpcTarget: "https://api.web3auth.io/infura-service/v1/0x1/BByrzraXv22Wnt-R5-jSWJFpkBP9F4hfMt65NXfXKSxKBd0VZ2XYZJoMXtEA6EoBrht-d917-fCDGQej3IVpq9A",
+      },
+    });
+
+    const connectBtn = document.getElementById("connectBtn");
+    const walletInfo = document.getElementById("walletInfo");
+    const walletAddress = document.getElementById("walletAddress");
+    const walletProvider = document.getElementById("walletProvider");
+
+    const connectWallet = async () => {
+        try {
+            await web3auth.initModal();
+            const web3authProvider = await web3auth.connect();
+
+            if (web3authProvider) {
+                const accounts = await web3authProvider.request({ method: "eth_accounts" });
+                
+                walletAddress.textContent = accounts[0];
+                walletProvider.textContent = "Web3Auth";
+                walletInfo.style.display = "block";
+                connectBtn.textContent = "متصل بنجاح";
+                connectBtn.disabled = true;
+            }
+
+        } catch (error) {
+            console.error("خطأ في الاتصال:", error);
+            alert("فشل الاتصال بالمحفظة. يرجى مراجعة Console.");
+        }
+    };
+
+    connectBtn.addEventListener("click", connectWallet);
+</script>
+
+</body>
+</html>
